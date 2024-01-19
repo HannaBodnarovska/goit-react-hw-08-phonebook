@@ -1,25 +1,21 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { fetchContacts as fetchContactsApi, addContact as addContactApi, deleteContact as deleteContactApi } from '../api/AuthAPI';
 
-const API_URL = 'https://65a6869274cf4207b4f047f7.mockapi.io/contacts';
-
-export const fetchContacts = createAsyncThunk('contacts/fetchAll', async () => {
-  const response = await fetch(API_URL);
-  return response.json();
+export const fetchContacts = createAsyncThunk('contacts/fetchAll', async (_, thunkAPI) => {
+  const token = thunkAPI.getState().auth.token;
+  const response = await fetchContactsApi(token);
+  return response;
 });
 
-export const addContact = createAsyncThunk('contacts/addContact', async (contactData) => {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(contactData),
-  });
-  return response.json();
+export const addContact = createAsyncThunk('contacts/addContact', async (contactData, thunkAPI) => {
+  const token = thunkAPI.getState().auth.token;
+  const response = await addContactApi(contactData, token);
+  return response;
 });
 
-export const deleteContact = createAsyncThunk('contacts/deleteContact', async (contactId) => {
-  await fetch(`${API_URL}/${contactId}`, { method: 'DELETE' });
+export const deleteContact = createAsyncThunk('contacts/deleteContact', async (contactId, thunkAPI) => {
+  const token = thunkAPI.getState().auth.token;
+  await deleteContactApi(contactId, token);
   return contactId;
 });
 
